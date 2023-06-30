@@ -13,6 +13,8 @@ on:
         required: true
       AZURE_TENANT_ID:
         required: true
+      TF_VAR_GITHUB_TOKEN:
+        required: false
 
 jobs:
   plan:
