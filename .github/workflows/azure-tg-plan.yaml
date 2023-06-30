@@ -16,9 +16,7 @@ on:
 
 jobs:
   plan:
-    runs-on: ubuntu-22.04
-    container:
-      image: alpine/terragrunt:latest
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
