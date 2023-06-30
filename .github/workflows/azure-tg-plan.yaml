@@ -47,6 +47,13 @@ jobs:
           sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.48.0/terragrunt_linux_amd64"
           sudo chmod +x /bin/terragrunt
           terragrunt -v
+      - name: Azure CLI script
+        uses: azure/CLI@v3
+        with:
+          azcliversion: 2.49.0
+          inlineScript: |
+            az account show
+            az storage -h
       - name: Terragrunt Init
         run: cd ${{ inputs.file_path }} && terragrunt init --terragrunt-non-interactive
       - name: Terragrunt Plan
