@@ -33,3 +33,24 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Setup Terraform v1.5.2
+        uses: hashicorp/setup-Terraform@v2
+        with:
+          terraform_version: 1.5.2
+          terraform_wrapper: true
+      - name: Setup Terraform version
+        run: terraform --version
+      - name: Setup Terraform wrapper path
+        run: which terraform
+      - name: Setup Terragrunt v0.48.0
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.48.0/terragrunt_linux_amd64"
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+      - name: Terragrunt Init
+        run: cd ${{ inputs.file_path }} && terragrunt init --terragrunt-non-interactive
+      - name: Terragrunt Plan
+        run: cd ${{ inputs.file_path }} && terragrunt init --terragrunt-non-interactive
+      - name: Terragrunt Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: cd ${{ inputs.file_path }} && terragrunt run-all apply --terragrunt-non-interactive
