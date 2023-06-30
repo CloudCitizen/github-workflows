@@ -54,7 +54,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       - name: Terragrunt Plan
-        run: cd ${{ inputs.file_path }} && terragrunt init --terragrunt-non-interactive
+        run: cd ${{ inputs.file_path }} && terragrunt plan --terragrunt-non-interactive
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
