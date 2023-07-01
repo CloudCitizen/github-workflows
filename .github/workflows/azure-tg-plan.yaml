@@ -93,9 +93,11 @@ jobs:
               #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
               #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
               <details><summary>Show Plan</summary>
+
               \`\`\`\n
               ${plans[i]}
               \`\`\`
+
               </details>
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.file_path }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
