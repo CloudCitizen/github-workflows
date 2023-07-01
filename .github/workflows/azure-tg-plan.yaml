@@ -59,7 +59,7 @@ jobs:
       - name: Terragrunt Plan
         run: |
           cd ${{ inputs.file_path }}
-          terragrunt plan --terragrunt-non-interactive -out terragrunt.plan
+          terragrunt plan --terragrunt-non-interactive -out ../../../terragrunt.plan
           terragrunt show -no-color terragrunt.plan > terragrunt.text
           terragrunt show -json terragrunt.plan > terragrunt.json
         env:
