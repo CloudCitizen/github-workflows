@@ -50,6 +50,7 @@ jobs:
           sudo chmod +x /bin/terragrunt
           terragrunt -v
       - name: Terragrunt Init
+        id: init
         run: cd ${{ inputs.file_path }} && terragrunt init --terragrunt-non-interactive
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -57,24 +58,54 @@ jobs:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           TF_VAR_GITHUB_TOKEN: ${{ secrets.TF_VAR_GITHUB_TOKEN }}
       - name: Terragrunt Plan
+        id: plan
         run: |
           cd ${{ inputs.file_path }}
           terragrunt plan --terragrunt-non-interactive -out $GITHUB_WORKSPACE/${{ inputs.file_path }}/terragrunt.plan
-          terragrunt show -no-color terragrunt.plan > terragrunt.text
-          terragrunt show -json terragrunt.plan > terragrunt.json
-          cat terragrunt.json
-          cat terragrunt.text
+          terragrunt show -no-color terragrunt.plan 2>&1 > /tmp/plan.txt
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           TF_VAR_GITHUB_TOKEN: ${{ secrets.TF_VAR_GITHUB_TOKEN }}
-      - uses: ahmadnassri/action-terraform-report@v3
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
         with:
-          # tell the action the plan outputs
-          terraform-text: ${{ github.workspace }}/${{ inputs.file_path }}/terragrunt.text
-          terraform-json: ${{ github.workspace }}/${{ inputs.file_path }}/terragrunt.json
-          remove-stale-reports: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            const plan = fs.readFileSync("/tmp/plan.txt", "utf8");
+            const maxGitHubBodyCharacters = 65536;
+
+            function chunkSubstr(str, size) {
+              const numChunks = Math.ceil(str.length / size)
+              const chunks = new Array(numChunks)
+              for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+                chunks[i] = str.substr(o, size)
+              }
+              return chunks
+            }
+
+            // Split the Terraform plan into chunks if it's too big and can't fit into the GitHub Action
+            var plans = chunkSubstr(plan, maxGitHubBodyCharacters);
+            for (let i = 0; i < plans.length; i++) {
+              const output = `### Part # ${i + 1}
+              #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+              #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+              <details><summary>Show Plan</summary>
+              \`\`\`\n
+              ${plans[i]}
+              \`\`\`
+              </details>
+              *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.file_path }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
       - name: Terragrunt Apply
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
