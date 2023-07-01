@@ -89,7 +89,7 @@ jobs:
             // Split the Terraform plan into chunks if it's too big and can't fit into the GitHub Action
             var plans = chunkSubstr(plan, maxGitHubBodyCharacters);
             for (let i = 0; i < plans.length; i++) {
-              const output = `### Part # ${i + 1}
+              const output = `### Plan # ${i + 1} for ${{ github.sha }} compared to ${{ github.base_ref }}
               #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
               #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
               <details><summary>Show Plan</summary>
@@ -99,6 +99,7 @@ jobs:
               \`\`\`
 
               </details>
+
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.file_path }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
               await github.rest.issues.createComment({
