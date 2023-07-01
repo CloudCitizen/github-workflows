@@ -102,6 +102,8 @@ jobs:
 
               *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.file_path }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
+              Detailed GHA Logs: https://github.com${{ github.repository }}/actions/runs/${{  github.run_id }}/jobs/${{github.job}}#step:9:1
+
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
