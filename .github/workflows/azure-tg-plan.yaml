@@ -62,6 +62,8 @@ jobs:
           terragrunt plan --terragrunt-non-interactive -out ../../../terragrunt.plan
           terragrunt show -no-color terragrunt.plan > terragrunt.text
           terragrunt show -json terragrunt.plan > terragrunt.json
+          cat terragrunt.json
+          cat terragrunt.text
         env:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
